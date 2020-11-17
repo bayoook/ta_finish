@@ -1,0 +1,10 @@
+*.txt
+.DS_Store
+.vscode/*
+*.bak
+*.bckp
+*.bckp1
+*.bckp2
+*.csv
+export_ta.json
+chromedriver

@@ -1,0 +1,353 @@
+<!doctype html>
+<title>Live {{ saham }}</title>
+<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+<style>body { margin: auto; padding: 1em; background: black; color: #fff; font: 16px/1.6 menlo, monospace; }</style>
+<div class='row'>
+    <div class='col-lg-10'>
+        <div id="chartContainer1" style="height: 300px;"></div>
+        <div id="chartContainer2" style="height: 150px;"></div>
+        <div id="chartContainer3" style="height: 150px;"></div>
+    </div>
+<!--    <div class='col-lg-2'>-->
+<!--        <div id="status"></div>-->
+<!--        <div id="warn"></div>-->
+<!--    </div>-->
+</div>
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/canvasjs.min.js"></script>
+<script src="/assets/js/jquery.canvasjs.min.js"></script>
+<script>
+    window.onload = function () {
+        // parse python value
+        let nama_saham = "{{ saham }}", day = "{{ day }}", periode = parseInt("{{ periode }}");
+        // function sse() {}
+        const url = "/" + nama_saham + "/" + periode + "/data";
+        const source = new EventSource(url);
+        source.onmessage = function(e) {
+            const sah = JSON.parse(e.data);
+            updateChart(sah);
+            // if(sah.status === "1") document.getElementById('status').innerHTML += sah.time + ' : Buy<br>';
+            // else if(sah.status === "2") document.getElementById('status').innerHTML += sah.time + ' : Sell<br>';
+        };
+
+        let dp_price = [], dp_volume = [], dp_average = [], dp_ssmooth = [], dp_sfast = [], dp_ema = [], dp_sma = [],
+            dp_ses = [], dp_bollinger = [];
+
+        if(periode <= 10)
+            periode = 10;
+        let start_value = new Date("1 Januari 2019 12:00");
+        let end_value = new Date("1 Januari 2019 13:30");
+        if(day === 'Friday' || day === 'Saturday' || day === 'Sunday'){
+            start_value = new Date("1 Januari 2019 11:30");
+            end_value = new Date("1 Januari 2019 14:00");
+        }
+
+        const chart1 = new CanvasJS.Chart("chartContainer1", {
+            animationEnabled: false,
+            theme: "light1",
+            zoomEnabled: true,
+            title: {
+                text: nama_saham + ' Stock Price'
+            },
+            axisX: {
+                valueFormatString: " ",
+                minimum: new Date("1 Januari 2019 09:00"),
+                crosshair: {
+                    enabled: true
+                },
+                scaleBreaks: {
+                    customBreaks: [{
+                        startValue: start_value,
+                        endValue: end_value,
+                        type: "none",
+                    }]
+                }
+            },
+            axisY: {
+                includeZero: false,
+                valueFormatString: "Rp #,##0.00",
+                scaleBreaks: {
+                    autoCalculate: true,
+                    collapsibleThreshold: "10%", //change to "50%"
+                    type: ""
+                }
+            },
+            toolTip: {
+                shared: true
+            },
+            dataPointWidth: 0,
+            data: [{
+                type: "candlestick",
+                color: "#535055",
+                fallingColor: "red",
+                risingColor: "green",
+                markerType: "none",
+                fillOpacity: 0.6,
+                name: "Stock Price",
+                yValueFormatString: "Rp #,##0.00",
+                xValueFormatString: "HH:mm",
+                dataPoints: dp_price
+            },
+                {
+                    type: "scatter",
+                    name: "Averages",
+                    markerType: "none",
+                    yValueFormatString: "Rp #,##0.00",
+                    xValueFormatString: "HH:mm",
+                    dataPoints: dp_average
+                },
+                {
+                    type: "line",
+                    name: "EMA",
+                    color: "#D79A5A",
+                    markerType: "none",
+                    yValueFormatString: "Rp #,##0.00",
+                    xValueFormatString: "HH:mm",
+                    dataPoints: dp_ema
+                },
+                {
+                    type: "line",
+                    name: "SES",
+                    color: "#664F96",
+                    markerType: "none",
+                    yValueFormatString: "Rp #,##0.00",
+                    xValueFormatString: "HH:mm",
+                    dataPoints: dp_ses
+                },
+                {
+                    type: "line",
+                    name: "SMA",
+                    color: "#64AAC2",
+                    markerType: "none",
+                    yValueFormatString: "Rp #,##0.00",
+                    xValueFormatString: "HH:mm",
+                    dataPoints: dp_sma
+                },
+                {
+                    type: "rangeArea",
+                    name: "Bollinger",
+                    markerType: "none",
+                    color: "#64AAC2",
+                    lineThickness: 2,
+                    fillOpacity: 0.1,
+                    yValueFormatString: "Rp #,##0.00",
+                    xValueFormatString: "HH:mm",
+                    markerSize: 0,
+                    dataPoints: dp_bollinger
+                },],
+            rangeChanged: syncHandler
+        });
+        const chart2 = new CanvasJS.Chart("chartContainer2", {
+            theme: "light1",
+            zoomEnabled: true,
+            dataPointWidth: 0,
+            axisX: {
+                valueFormatString: " ",
+                minimum: new Date("1 Januari 2019 09:00"),
+                crosshair: {
+                    enabled: true
+                },
+                scaleBreaks: {
+                    customBreaks: [{
+                        startValue: start_value,
+                        endValue: end_value,
+                        type: "none",
+                    }]
+                }
+            },
+            toolTip: {
+                shared: true
+            },
+            axisY: {
+                includeZero: false,
+                // suffix: " %",
+                // tickLength: 0,
+                // lineThickness:0,
+                // gridThickness: 0,
+                // tickThickness: 0,
+                // margin:0,
+                // minimum: 0,
+                maximum: 100,
+                stripLines: [
+                    {
+                        startValue: 20,
+                        endValue: 80,
+                        opacity: .2
+                    },
+                ]
+            },
+            data: [{
+                type: "spline",
+                markerSize: 0,
+                // color: "#5981B7",
+                name: "%D",
+                markerType: "none",
+                xValueFormatString: "HH:mm",
+                dataPoints: dp_ssmooth
+            },
+                {
+                    type: "spline",
+                    markerSize: 0,
+                    name: "%K",
+                    // color: "#B45955",
+                    markerType: "none",
+                    xValueFormatString: "HH:mm",
+                    dataPoints: dp_sfast
+                }],
+            rangeChanged: syncHandler
+        });
+        const chart3 = new CanvasJS.Chart("chartContainer3", {
+            animationEnabled: false,
+            theme: "light1",
+            zoomEnabled: true,
+            axisX: {
+                valueFormatString: "HH:mm",
+                interval: periode,
+                intervalType: "minute",
+                minimum: new Date("1 Januari 2019 09:00"),
+                crosshair: {
+                    enabled: true
+                },
+
+                scaleBreaks: {
+                    customBreaks: [{
+                        startValue: start_value,
+                        endValue: end_value,
+                        type: "none",
+                    }]
+                }
+            },
+            axisY: {
+                scaleBreaks: {
+                    autoCalculate: true,
+                    collapsibleThreshold: "10%", //change to "50%"
+                    type: ""
+                }
+            },
+            toolTip: {
+                shared: true
+            },
+            dataPointWidth: 0,
+            data: [{
+                type: "column",
+                color: "black",
+                name: "Volume",
+                markerType: "none",
+                xValueFormatString: "HH:mm",
+                dataPoints: dp_volume
+            }],
+            rangeChanged: syncHandler
+        });
+        const i = 0;
+        const dLen = 1000;
+        const updateChart = function(sah) {
+            const date_val = new Date("1 Januari 2019 " + sah.time), s_smooth = parseFloat(sah.smooth),
+                s_fast = parseFloat(sah.fast), open = parseFloat(sah.open),
+                close = parseFloat(sah.close), high = parseFloat(sah.high), low = parseFloat(sah.low),
+                avg = parseFloat(sah.avg), vol = parseInt(sah.vol), ema = parseFloat(sah.ema),
+                sma = parseFloat(sah.sma), ses = parseFloat(sah.ses), bollinger_hi = parseFloat(sah.bol_hi),
+                bollinger_low = parseFloat(sah.bol_lo);
+            dp_price.push({x: date_val, y: [open, high, low, close]});
+            dp_volume.push({x: date_val, y: vol});
+            dp_average.push({x: date_val, y: avg});
+            dp_ema.push({x: date_val, y: ema});
+            dp_ses.push({x: date_val, y: ses});
+            dp_sma.push({x: date_val, y: sma });
+            dp_bollinger.push({x: date_val, y: [bollinger_hi, bollinger_low]});
+            dp_ssmooth.push({x: date_val, y: s_smooth});
+            dp_sfast.push({x: date_val, y: s_fast});
+            chart1.render();
+            chart2.render();
+            chart3.render();
+            chart2.axisY[0].set("margin", chart1.axisY[0].bounds.x2 - (chart2.axisY[0].bounds.x2 - chart2.axisY[0].bounds.x1));
+            chart3.axisY[0].set("margin", chart1.axisY[0].bounds.x2 - (chart3.axisY[0].bounds.x2 - chart3.axisY[0].bounds.x1));
+        };
+
+        chart1.render();
+        chart2.render();
+        chart3.render();
+        const charts = [chart1, chart2, chart3];// add all charts (with axes) to be synced
+        function syncHandler(e) {
+
+            for (var i = 0; i < charts.length; i++) {
+                var chart = charts[i];
+
+                if (!chart.options.axisX)
+                chart.options.axisX = {};
+
+                if (!chart.options.axisY)
+                    chart.options.axisY = {};
+
+                if (e.trigger === "reset") {
+
+                    chart.options.axisX.viewportMinimum = chart.options.axisX.viewportMaximum = null;
+                    chart.options.axisY.viewportMinimum = chart.options.axisY.viewportMaximum = null;
+
+                    chart.render();
+
+                } else if (chart !== e.chart) {
+
+                    chart.options.axisX.viewportMinimum = e.axisX[0].viewportMinimum;
+                    chart.options.axisX.viewportMaximum = e.axisX[0].viewportMaximum;
+
+                    chart.options.axisY.viewportMinimum = e.axisY[0].viewportMinimum;
+                    chart.options.axisY.viewportMaximum = e.axisY[0].viewportMaximum;
+
+                    chart.render();
+
+                }
+            }
+        }
+        var heightRatio = (chart1.plotArea.y2 - chart1.plotArea.y1) / (chart2.plotArea.y2 - chart2.plotArea.y1) + 10;
+
+        var $chart1 = $("#chartContainer1"), $chart2 = $("#chartContainer2"), $chart3 = $("#chartContainer3");
+        var otherChartCanvas = $chart1.find(".canvasjs-chart-canvas").get(1);
+        var otherChartCanvas1 = $chart2.find(".canvasjs-chart-canvas").get(1);
+        var otherChartCanvas2 = $chart3.find(".canvasjs-chart-canvas").get(1);
+
+        $chart1.on("mousemove mouseup mousedown mouseout", function(e){
+            var parentOffset = $chart1.offset();
+            otherChartCanvas1.dispatchEvent(createEvent(
+                e.type, e.screenX, e.screenY + chart1.get("height"), chart2.axisX[0].convertValueToPixel(chart1.axisX[0].convertPixelToValue(e.clientX)),
+                ((e.clientY - ((e.pageY - e.clientY) <= chart1.plotArea.y1 ? chart1.plotArea.y1 : 0)) / heightRatio) + $chart2.offset().top + chart2.plotArea.y1 - (e.pageY - e.clientY)
+            ));
+            otherChartCanvas2.dispatchEvent(createEvent(
+                e.type, e.screenX, e.screenY + chart1.get("height"), chart3.axisX[0].convertValueToPixel(chart1.axisX[0].convertPixelToValue(e.clientX)),
+                ((e.clientY - ((e.pageY - e.clientY) <= chart1.plotArea.y1 ? chart1.plotArea.y1 : 0)) / heightRatio) + $chart3.offset().top + chart3.plotArea.y1 - (e.pageY - e.clientY)
+            ));
+        });
+
+        $chart2.on("mousemove mouseup mousedown mouseout", function(e){
+            otherChartCanvas.dispatchEvent(createEvent(
+                e.type, e.screenX, e.screenY - chart2.get("height"),
+                chart1.axisX[0].convertValueToPixel(chart2.axisX[0].convertPixelToValue(e.clientX)),
+                e.clientY - chart2.get("height")
+            ));
+            otherChartCanvas2.dispatchEvent(createEvent(
+                e.type, e.screenX, e.screenY + chart1.get("height"), chart3.axisX[0].convertValueToPixel(chart1.axisX[0].convertPixelToValue(e.clientX)),
+                ((e.clientY - ((e.pageY - e.clientY) <= chart1.plotArea.y1 ? chart1.plotArea.y1 : 0)) / heightRatio) + $chart3.offset().top + chart3.plotArea.y1 - (e.pageY - e.clientY)
+            ));
+        });
+
+        $chart3.on("mousemove mouseup mousedown mouseout", function(e){
+            otherChartCanvas.dispatchEvent(createEvent(
+                e.type, e.screenX, e.screenY - chart3.get("height") - chart2.get("height"),
+                chart1.axisX[0].convertValueToPixel(chart3.axisX[0].convertPixelToValue(e.clientX)),
+                e.clientY - chart3.get("height") - chart2.get("height")
+            ));
+            otherChartCanvas1.dispatchEvent(createEvent(
+                e.type, e.screenX, e.screenY - chart3.get("height") - 10,
+                chart2.axisX[0].convertValueToPixel(chart3.axisX[0].convertPixelToValue(e.clientX)),
+                e.clientY - chart3.get("height") - 10
+            ));
+        });
+
+        function createEvent(type, screenX, screenY, clientX, clientY){
+            return new MouseEvent(type, {
+                view: window, bubbles: false, cancelable: true, screenX: screenX, screenY: screenY, clientX: clientX, clientY: clientY
+            });
+        }
+        // sse();
+    }
+</script>

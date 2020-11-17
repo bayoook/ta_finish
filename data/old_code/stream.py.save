@@ -1,0 +1,329 @@
+from flask import Flask, Response
+from datetime import date
+import json
+import sseclient
+import requests
+from time import sleep
+import sys
+
+app = Flask(__name__, template_folder='templates')
+app.config["REDIS_URL"] = "redis://localhost"
+port = sys.argv[1]
+
+
+@app.route('/live/<nama_saham>/<waktu_saham>')
+def live(nama_saham, waktu_saham):
+    print(nama_saham)
+    if nama_saham == 'all':
+        return """
+                <!doctype html>
+                <title>chat</title>
+                <script src="/jquery.js"></script>
+                <style>body { margin: auto; padding: 1em; background: black; color: #fff; font: 16px/1.6 menlo, monospace; }</style>
+                <p>Data: saham</p>
+                <pre id="out"></pre>
+                <script>
+                    window.onload = function () {
+                        function sse() {
+                            source = "../../stream?channel=""" + nama_saham + """"
+                            var source = new EventSource(source);
+                            var out = document.getElementById('out');
+                            source.onmessage = function(e) {
+                                out.innerHTML =  e.data + '\\n' + out.innerHTML;
+                            };
+                        }
+                        sse();
+                    }
+                </script>
+                """
+    else:
+        return """
+                <!doctype html>
+                <title>chat</title>
+                <style>body { margin: auto; padding: 1em; background: black; color: #fff; font: 16px/1.6 menlo, monospace; }</style>
+                <p>Data: Saham """ + nama_saham + """</p>
+                <div id="chartContainer" style="width: 100%%; height: 400px;"></div><br>
+                <div id="chartContainer2" style="width: 100%%; height: 400px"></div>
+                <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+                <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+                <script>
+                    window.onload = function () {
+                        function sse() {
+                            source = "../../chart/""" + nama_saham + """/""" + waktu_saham + """ "
+                            var source = new EventSource(source);
+                            source2 = "../../predict/""" + nama_saham + """/""" + waktu_saham + """ "
+                            var source2 = new EventSource(source2);
+                            var out = document.getElementById('out');
+                            source.onmessage = function(e) {
+                                var sah = JSON.parse(e.data);
+                                updateChart(sah);
+                            };
+                            source2.onmessage = function(e) {
+                                var sah2 = JSON.parse(e.data);
+                                updateChart2(sah2);
+                            };
+                        }
+                        var dps = [];
+                        var dpv = [];
+                        var dpa = [];
+                        var dpp = [];
+                        var nama_saham;
+                        var chart = new CanvasJS.Chart("chartContainer", {
+                            animationEnabled: true,
+                            theme: "light2", // "light1", "light2", "dark1", "dark2"
+                            exportEnabled: true,
+                            title: {
+                                text: '""" + nama_saham + """ Stock Price'
+                            },
+                            subtitles: [{
+                                text: ""
+                            }],
+                            axisX: {
+                                interval: 1,
+                                valueFormatString: "HH:mm"
+                            },
+                            axisY: {
+                                includeZero: false,
+                                prefix: "Rp ",
+                                title: "Price"
+                            },
+                            axisY2: {
+                                suffix: " lembar",
+                                title: "Volume",
+                                tickLength: 0
+                            },
+                            toolTip: {
+                                shared: true
+                            },
+                            data: [{
+                                type: "candlestick",
+                                name: "Stock Price",
+                                yValueFormatString: "Rp #,##0.00",
+                                xValueFormatString: "HH:mm",
+                                dataPoints: dps
+                            },
+                            {
+                                type: "scatter",
+                                name: "Averages",
+                                yValueFormatString: "Rp #,##0.00",
+                                xValueFormatString: "HH:mm",
+                                dataPoints: dpa
+                            },
+                            {
+                                type: "scatter",
+                                name: "Volume",
+                                axisYType: "secondary",
+                                xValueFormatString: "HH:mm",
+                                dataPoints: dpv
+                            },]
+                        });
+                        var chart2 = new CanvasJS.Chart("chartContainer2", {
+                            exportEnabled: true,
+                            title :{
+                                text: 'Stochastic """ + nama_saham + """'
+                            },
+                            axisY: {
+                                includeZero: false,
+                                maximum: 100,
+                            },
+                            data: [{
+                                type: "spline",
+                                markerSize: 0,
+                                xValueFormatString: "HH:mm",
+                                dataPoints: dpp 
+                            }]
+                        });
+                        var i = 0;
+                        var dLen = 1000;
+                        var updateChart = function(sah) {
+                            var xVal = new Date("1 Januari 2019 " + sah.time)
+                            var open = parseFloat(sah.open)
+                            var close = parseFloat(sah.close)
+                            var high = parseFloat(sah.high)
+                            var low = parseFloat(sah.low)
+                            var avg = parseFloat(sah.avg)
+                            var vol = parseFloat(sah.vol)
+                            var yVal = [open, high, low, close]
+                            dps.push({
+                                x: xVal,
+                                y: yVal
+                            })
+                            dpv.push({
+                                x: xVal,
+                                y: vol
+                            })
+                            dpa.push({
+                                x: xVal,
+                                y: avg
+                            })
+                            chart.render();
+                        };
+                        var updateChart2 = function(sah) {
+                            var xVal = new Date("1 Januari 2019 " + sah.time)
+                            var stoch = parseFloat(sah.stoch)
+                            dpp.push({
+                                x: xVal,
+                                y: stoch
+                            })
+                            chart2.render();
+                        };
+                        sse();
+                    }
+                </script>
+                """
+
+
+@app.route('/canvas.js')
+def canvas():
+    return open('canvas.js', 'r').read()
+
+
+@app.route('/jquery.js')
+def jquery():
+    return open('jquery.js', 'r').read()
+
+
+@app.route('/chart/<saham>/<periode>')
+def newstream(saham, periode):
+    saham = saham.upper()
+
+    def sendData(saham, periode):
+        periode = int(periode)
+        day = f"{date.today().day:02d}"
+        month = f"{date.today().month:02d}"
+        year = f"{date.today().year:02d}"
+        # day, month, year = '11', '09', '2019'
+        fHead = "olah_"
+        fFoot = ".txt"
+        fName = fHead + day + month + year + fFoot
+        file = open(fName, 'r')
+        try:
+            count_time = 0
+            h_s = 9
+            data_s = []
+            while 1:
+                where = file.tell()
+                line = file.readline().replace('\'', '"')
+                if not line:
+                    file.seek(where)
+                else:
+                    try:
+                        data = json.loads(line)
+                        if data['stock'] == saham:
+                            if periode == 1:
+                                yield "data: " + json.dumps(data) + "\n\n"
+                            else:
+                                if count_time == 0:
+                                    count_time = int(int(data['time'].split(':')[1]) / periode) + 1
+                                    if count_time == 0:
+                                        count_time = 1
+                                data_s.append(data)
+                                try:
+                                    if int(data['time'].split(':')[1]) >= periode * count_time:
+                                        data_s = data_s[:-1]
+                                        ret_d = hitung_data(data_s, count_time * periode)
+                                        yield "data: " + json.dumps(ret_d) + "\n\n"
+                                        data_s.clear()
+                                        data_s.append(data)
+                                        count_time += 1
+                                    if int(data['time'].split(':')[0]) != h_s:
+                                        data_s = data_s[:-1]
+                                        ret_d = hitung_data(data_s, count_time * periode)
+                                        yield "data: " + json.dumps(ret_d) + "\n\n"
+                                        data_s.clear()
+                                        data_s.append(data)
+                                        count_time = int(int(data['time'].split(':')[1]) / periode) + 1
+                                        h_s = int(data['time'].split(':')[0])
+                                except Exception as e:
+                                    print(e)
+                                    pass
+                    except Exception as e:
+                        print(e)
+        except Exception as e:
+            print(e)
+
+    def hitung_data(data, waktu):
+        jss = {}
+        jss['time'] = data[-1]['time'].split(':')[0] + ':' + str(waktu)
+        if waktu == 60:
+            jss['time'] = str(int(data[-1]['time'].split(':')[0]) + 1) + ':00'
+        jss['stock'] = data[0]['stock']
+        jss['high'] = max(max(x['high'] for x in data), max(x['low'] for x in data))
+        jss['low'] = min(min(x['high'] for x in data), min(x['low'] for x in data))
+        jss['open'] = data[0]['open']
+        jss['close'] = data[-1]['close']
+        jss['vol'] = sum(int(x['vol']) for x in data)
+        jss['avg'] = str(sum(float(x['avg']) * int(x['vol']) for x in data) / sum(int(x['vol']) for x in data))
+        return jss
+
+    return Response(
+        sendData(saham, periode),
+        mimetype='text/event-stream')
+
+
+@app.route('/predict/<saham>/<periode>')
+def prestream(saham, periode):
+    saham = saham.upper()
+    periode = int(periode)
+
+    def dapat(url):
+        return requests.get(url, stream=True)
+
+    def predict_data(stk, per):
+        while 1:
+            try:
+                url = "http://0.0.0.0:" + port + "/chart/" + stk.upper() + "/" + str(per)
+                response = dapat(url)
+                client = sseclient.SSEClient(response)
+                c = 0
+                fast_per = []
+                av = 0
+                ope = []
+                eman = 0
+                smoothed = 0
+                ema = 0
+                arr_new = []
+                for event in client.events():
+                    ret_d = {}
+                    try:
+                        data = json.loads(event.data)
+                        arr_new.append(data)
+                        if c != 0 and av != 0:
+                            # stochastic
+                            if len(arr_new) >= 14:
+                                low = (min(min(x['high'] for x in arr_new), min(x['low'] for x in arr_new[-14:])))
+                                high = (max(max(x['high'] for x in arr_new), max(x['low'] for x in arr_new[-14:])))
+                                fast_line = ((c - low) / (high - low)) * 100
+                                fast_per.append(int(fast_line))
+                                if len(fast_per) == 3:
+                                    smoothed = sum(fast_per) / len(fast_per)
+                                    fast_per = []
+
+                            ope.append(int(data["open"]))
+                            ema = ((c - eman) * (2 / (len(ope) + 1))) + eman
+                            if smoothed != 0:
+                                ret_d['stoch'] = smoothed
+                                ret_d['time'] = data['time']
+                            ret_d['ema'] = ema
+                            yield "data: " + json.dumps(ret_d) + "\n\n"
+                            eman = ema
+                            av = float(data["avg"])
+                            c = int(data["close"])
+                        else:
+                            c = int(data["close"])
+                            av = float(data["avg"])
+                    except Exception as e:
+                        print(e)
+                        pass
+            except Exception as e:
+                print(e)
+                sleep(10)
+
+    return Response(
+        predict_data(saham, periode),
+        mimetype='text/event-stream')
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+

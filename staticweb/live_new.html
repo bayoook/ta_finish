@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Dashboard - TA</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
+</head>
+
+<body id="page-top" style="background-color: #F8F9FC;">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content" >
+                <nav class="navbar navbar-light navbar-expand fixed-top bg-white shadow mb-2 topbar static-top"
+                    style="height: 60px;padding: 32px;">
+                    <div class="container-fluid">
+                        <h3 class="text-dark mb-0">{{saham}} ({{nama_full}})</h3>
+                    </div>
+                </nav>
+                <div class="container-fluid" style="padding-top: 60px; padding-bottom: 80px">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                    <div class="row">
+                        <div class="col-lg-8 col-xl-9">
+                            <div class="row">
+                                <div class="col col-lg-4 col-xl-3">
+                                    <div class="card shadow border-left-info py-2">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col mr-2">
+                                                    <div class="text-uppercase text-primary font-weight-bold text-xs mb-1">
+                                                        <span>PRICE</span>
+                                                    </div>
+                                                    <div class="text-dark font-weight-bold h5 mb-0">
+                                                        <span id="price"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col col-lg-4 col-xl-3">
+                                    <div class="card shadow border-left-secondary py-2" id="card_st">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col mr-2">
+                                                    <div id='t_st'
+                                                        class="text-uppercase text-success font-weight-bold text-xs mb-1">
+                                                        <span>STATUS</span></div>
+                                                    <div class="text-dark font-weight-bold h5 mb-0"><span
+                                                            id="st"></span></div>
+                                                </div>
+                                                <div class="col-auto"><i
+                                                        class="far fa-list-alt fa-2x text-gray-300"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col col-lg-4 col-xl-3">
+                                    <div class="card shadow border-left-secondary py-2" id="card_stat">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col mr-2">
+                                                    <div id='t_status'
+                                                        class="text-uppercase text-success font-weight-bold text-xs mb-1">
+                                                        <span>SUMMARY</span></div>
+                                                    <div class="text-dark font-weight-bold h5 mb-0"><span
+                                                            id="status"></span></div>
+                                                </div>
+                                                <div class="col-auto"><i
+                                                        class="far fa-list-alt fa-2x text-gray-300"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col" style="padding: 12px;">
+                                    <div class="card shadow">
+                                        <!-- <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="text-primary font-weight-bold m-0">Charts</h6>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <button class="btn-sm m-0 btn-success small">Buy</button>
+                                                <span>&nbsp;</span>
+                                                <button class="btn-sm m-0 btn-danger small">Sell</button>
+                                                <span>&nbsp;</span>
+                                                <button class="btn-sm m-0 btn-info small">Auto</button>
+                                            </div>
+                                        </div> -->
+                                        <div class="card-body">
+                                            <div id="chartContainer1" class="chart-area" style="height: 410px;"></div>
+                                            <div id="chartContainer2" class="chart-area" style="height: 128px;"></div>
+                                            <div id="chartContainer3" class="chart-area" style="height: 120px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-xl-3">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow mb-0">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="text-primary font-weight-bold m-0">Summary</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive mb-2">
+                                                <table class="table table-striped mb-0">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><strong>MA</strong></td>
+                                                            <td class="text-center"><strong class="decide_ma"></strong></td>
+                                                            <td class="text-center">Buy (<strong class="buy_ma"></strong>)</td>
+                                                            <td class="text-center">Sell (<strong class="sell_ma"></strong>)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Technical</strong></td>
+                                                            <td class="text-center"><strong class="decide_ta"></strong></td>
+                                                            <td class="text-center">Buy (<strong class="buy_ta"></strong>)</td>
+                                                            <td class="text-center">Sell (<strong class="sell_ta"></strong>)</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col" style="padding-top: 12px;">
+                                    <div class="card shadow mb-0" style="margin-bottom: 24px;">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="text-primary font-weight-bold m-0">Moving Averages</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive table-bordered mb-2">
+                                                <table class="table table-striped table-bordered table-sm mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th class="text-center">Simple</th>
+                                                            <th class="text-center">Exponen</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>MA (5)</td>
+                                                            <td id="sma5" class="text-center"></td>
+                                                            <td id="ema5" class="text-center"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>MA (10)</td>
+                                                            <td id="sma10" class="text-center"></td>
+                                                            <td id="ema10" class="text-center"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>MA (20)</td>
+                                                            <td id="sma20" class="text-center"></td>
+                                                            <td id="ema20" class="text-center"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>MA (50)</td>
+                                                            <td id="sma50" class="text-center"></td>
+                                                            <td id="ema50" class="text-center"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>MA (100)</td>
+                                                            <td id="sma100" class="text-center"></td>
+                                                            <td id="ema100" class="text-center"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div style="padding: 0 12px;">
+                                                <p class="d-inline-block" style="margin-bottom: 0;">Buy : <strong
+                                                        class="buy_ma"></strong><span>&nbsp;&nbsp;</span></p>
+                                                <p class="d-inline-block" style="margin-bottom: 0;">Sell : <strong
+                                                        class="sell_ma"></strong><span>&nbsp;&nbsp;</span></p>
+                                                <br>
+                                                <p class="d-inline-block"><strong>Summary :</strong><span>&nbsp;</span>
+                                                </p>
+                                                <p class="d-inline-block text-danger"><strong
+                                                        class="decide_ma"></strong></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col" style="padding: 12px;">
+                                    <div class="card shadow">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="text-primary font-weight-bold m-0">Technical Analysist</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive table-bordered mb-2">
+                                                <table class="table table-striped table-bordered table-sm mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th class="text-center">Value</th>
+                                                            <th class="text-center">Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Stochastic</td>
+                                                            <td id="sto" class="text-center"></td>
+                                                            <td id="sto_sta" class="text-center text-success"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>SES</td>
+                                                            <td id="ses" class="text-center"></td>
+                                                            <td id="ses_sta" class="text-center text-danger"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Bollinger</td>
+                                                            <td id="bol" class="text-center"></td>
+                                                            <td id="bol_sta" class="text-center"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div style="padding: 0 12px;">
+                                                <p class="d-inline-block" style="margin-bottom: 0;">Buy : <strong
+                                                        class="buy_ta"></strong><span>&nbsp;&nbsp;</span></p>
+                                                <p class="d-inline-block" style="margin-bottom: 0;">Sell : <strong
+                                                        class="sell_ta"></strong><span>&nbsp;&nbsp;</span></p>
+                                                <p class="d-inline-block" style="margin-bottom: 0;">Neutral : <strong
+                                                        class="net_ta"></strong></p>
+                                                <br>
+                                                <p class="d-inline-block"><strong>Summary :</strong><span>&nbsp;</span>
+                                                </p>
+                                                <p class="d-inline-block text-danger"><strong
+                                                        class="decide_ta"></strong></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class='row'>
+                        <div class="col">
+                            Testing
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <footer class="bg-white d-flex justify-content-center align-items-center" style="width:100%; height:60px; position:absolute; bottom:0;">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright" style="font-size: .8rem;"><span>min4tozaki.me</span></div>
+                </div>
+            </footer>
+        </div>
+        <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/canvasjs.min.js"></script>
+    <script src="/assets/js/jquery.canvasjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="/assets/js/script.min.js"></script>
+    <script src="/assets/js/sweetalert2.all.min.js"></script>
+    <script>
+        window.onload = function () {
+            // First Init
+            const nama_saham = "{{ saham }}",
+                  day = "{{ day }}",
+                  periode = parseInt("{{ periode }}"),
+                //   date = "{{ date }}",
+                  url = "/{{ saham }}/{{ periode }}/{{ tanggal }}/stream",
+                  source = new EventSource(url);
+
+            let dp_price = [],
+                dp_volume = [],
+                dp_average = [],
+                dp_ssmooth = [],
+                dp_sfast = [],
+                dp_ema = [],
+                dp_sma = [],
+                dp_ses = [],
+                dp_bollinger = [],
+                tanggal = '',
+                tanggalan = '',
+                op = '';
+
+            var xhr = new XMLHttpRequest();
+
+            // Read API data
+            xhr.open("GET", "/pQw22z/api/{{ saham }}/{{ tanggal }}/{{ periode }}/reqAPI", false);
+            xhr.onload = function (e) {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText)
+                        var i = 0
+                        data.forEach(k => {
+                            // delete first response api
+                            if (i == 1) {
+                                dp_price.shift();
+                                dp_bollinger.shift();
+                                dp_volume.shift();
+                                dp_average.shift();
+                                dp_ema.shift();
+                                dp_ses.shift();
+                                dp_ssmooth.shift();
+                                dp_sfast.shift();
+                                dp_sma.shift();
+                            }
+                            
+                            // push api value to array
+                            date = new Date(k.time);
+                            // console.log(date);
+                            dp_price.push({
+                                x: date,
+                                y: [k.open, k.high, k.low, k.close]
+                            });
+                            dp_bollinger.push({
+                                x: date,
+                                y: [k.bol_hi, k.bol_lo]
+                            });
+                            dp_volume.push({
+                                x: date,
+                                y: k.vol
+                            });
+                            dp_average.push({
+                                x: date,
+                                y: k.avg
+                            });
+                            dp_ema.push({
+                                x: date,
+                                y: k.ema[2]
+                            });
+                            dp_ses.push({
+                                x: date,
+                                y: k.ses
+                            });
+                            dp_ssmooth.push({
+                                x: date,
+                                y: k.smooth
+                            });
+                            dp_sfast.push({
+                                x: date,
+                                y: k.fast
+                            });
+                            dp_sma.push({
+                                x: date,
+                                y: k.sma[2]
+                            });
+                        });
+                        op = data[0].open;
+                    } 
+                    else {
+                        console.error(xhr.statusText);
+                    }
+                }
+            };
+            xhr.onerror = function (e) {
+                console.error(xhr.statusText);
+            };
+            xhr.send(null);
+            console.log(op);
+            // console.log(dp_price);
+            var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            hari = new Date("{{date}}").getDay()
+            let start_value = new Date("{{date}} 11:59");
+            let end_value = new Date("{{date}} 13:29");
+
+            if (hari === 5 || hari === 6 || hari === 0) {
+                start_value = new Date("{{date}} 11:29");
+                end_value = new Date("{{date}} 13:59");
+            }
+            const chart1 = new CanvasJS.Chart("chartContainer1", {
+                animationEnabled: false,
+                theme: "light1",
+                zoomEnabled: true,
+                axisX: {
+                    interlacedColor: "#F6F6F6",
+                    valueFormatString: " ",
+                    lineThickness: 0,
+                    tickThickness: 0,
+                    minimum: new Date("{{date}} 08:55"),
+                    // minimum: new Date("{{date}} 10:40"),
+                    // maximum: new Date("{{date}} 16:15"),
+                    crosshair: {
+                        enabled: true
+                    },
+                    scaleBreaks: {
+                        customBreaks: [{
+                            startValue: start_value,
+                            endValue: end_value,
+                            type: "none",
+                        }]
+                    }
+                },
+                axisY: {
+                    includeZero: false,
+                    gridThickness: 0.3,
+                    lineThickness: 0,
+                    tickThickness: 0.3,
+                    valueFormatString: "Rp #,##0.00",
+                    scaleBreaks: {
+                        autoCalculate: true,
+                        collapsibleThreshold: "10%", //change to "50%"
+                        type: ""
+                    }
+                },
+                toolTip: {
+                    shared: true,
+                },
+                dataPointWidth: 0,
+                data: [{
+                        type: "candlestick",
+                        color: "#535055",
+                        fallingColor: "red",
+                        risingColor: "green",
+                        markerType: "none",
+                        fillOpacity: 0.6,
+                        name: "Stock Price",
+                        yValueFormatString: "Rp #,##0.00",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_price
+                    },
+                    {
+                        type: "scatter",
+                        name: "Averages",
+                        markerType: "none",
+                        yValueFormatString: "Rp #,##0.00",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_average
+                    },
+                    {
+                        type: "line",
+                        name: "EMA",
+                        color: "#D79A5A",
+                        markerType: "none",
+                        yValueFormatString: "Rp #,##0.00",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_ema
+                    },
+                    {
+                        type: "line",
+                        name: "SES",
+                        color: "#664F96",
+                        markerType: "none",
+                        yValueFormatString: "Rp #,##0.00",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_ses
+                    },
+                    {
+                        type: "line",
+                        name: "SMA / Middle Band",
+                        color: "#64AAC2",
+                        markerType: "none",
+                        yValueFormatString: "Rp #,##0.00",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_sma
+                    },
+                    {
+                        type: "rangeArea",
+                        name: "Bollinger",
+                        markerType: "none",
+                        color: "#64AAC2",
+                        lineThickness: 1,
+                        fillOpacity: 0.1,
+                        yValueFormatString: "Rp #,##0.00",
+                        xValueFormatString: "HH:mm",
+                        markerSize: 0,
+                        // toolTipContent: "<span style='color:" + "#64AAC2" + "'>Upper Band:</span> {y[0]}<br/><span style='color:" + "#64AAC2" + "'>Lower Band:</span> {y[1]}",
+                        // toolTipFontColor: "#64AAC2",
+                        dataPoints: dp_bollinger
+                    },
+                ],
+                rangeChanged: syncHandler
+            });
+            const chart2 = new CanvasJS.Chart("chartContainer2", {
+                theme: "light1",
+                zoomEnabled: true,
+                dataPointWidth: 0,
+                axisX: {
+                    lineThickness: 0,
+                    tickThickness: 0,
+                    // minimum: new Date("{{date}} 10:40"),
+                    minimum: new Date("{{date}} 08:55"),
+                    // maximum: new Date("{{date}} 16:15"),
+                    valueFormatString: " ",
+                    interlacedColor: "#F6F6F6",
+                    crosshair: {
+                        enabled: true
+                    },
+                    scaleBreaks: {
+                        customBreaks: [{
+                            startValue: start_value,
+                            endValue: end_value,
+                            type: "none",
+                        }]
+                    }
+                },
+                toolTip: {
+                    shared: true
+                },
+                axisY: {
+                    includeZero: false,
+                    gridThickness: 0.3,
+                    lineThickness: 0,
+                    tickThickness: 0.3,
+                    maximum: 100,
+                    minimum: 0,
+                    stripLines: [{
+                        startValue: 20,
+                        endValue: 80,
+                        opacity: .1,
+                        showOnTop: true,
+                    }, ]
+                },
+                data: [{
+                        type: "spline",
+                        markerSize: 0,
+                        // color: "#5981B7",
+                        name: "%D",
+                        markerType: "none",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_ssmooth
+                    },
+                    {
+                        type: "spline",
+                        markerSize: 0,
+                        name: "%K",
+                        // color: "#B45955",
+                        markerType: "none",
+                        xValueFormatString: "HH:mm",
+                        dataPoints: dp_sfast
+                    }
+                ],
+                rangeChanged: syncHandler
+            });
+            const chart3 = new CanvasJS.Chart("chartContainer3", {
+                animationEnabled: false,
+                theme: "light1",
+                zoomEnabled: true,
+                axisX: {
+                    lineThickness: 0,
+                    tickThickness: 0.3,
+                    valueFormatString: "HH:mm",
+                    interlacedColor: "#F6F6F6",
+                    // interval: periode,
+                    intervalType: "minute",
+                    // minimum: new Date("{{date}} 10:40"),
+                    minimum: new Date("{{date}} 08:55"),
+                    // maximum: new Date("{{date}} 16:15"),
+                    crosshair: {
+                        enabled: true
+                    },
+
+                    scaleBreaks: {
+                        customBreaks: [{
+                            startValue: start_value,
+                            endValue: end_value,
+                            type: "none",
+                        }]
+                    }
+                },
+                axisY: {
+                    gridThickness: 0.3,
+                    lineThickness: 0,
+                    tickThickness: 0.3,
+                    scaleBreaks: {
+                        autoCalculate: true,
+                        collapsibleThreshold: "10%", //change to "50%"
+                        type: ""
+                    }
+                },
+                toolTip: {
+                    shared: true
+                },
+                dataPointWidth: 0,
+                data: [{
+                    type: "column",
+                    color: "black",
+                    name: "Volume",
+                    markerType: "none",
+                    xValueFormatString: "HH:mm",
+                    dataPoints: dp_volume
+                }],
+                rangeChanged: syncHandler
+            });
+
+
+            chart1.render();
+            chart2.render();
+            chart3.render();
+            
+            chart2.axisY[0].set("margin", chart1.axisY[0].bounds.x2 - (chart2.axisY[0].bounds.x2 - chart2.axisY[0].bounds.x1));
+            chart3.axisY[0].set("margin", chart1.axisY[0].bounds.x2 - (chart3.axisY[0].bounds.x2 - chart3.axisY[0].bounds.x1));
+
+            source.onmessage = function (e) {
+                if(e.data == 'KEEP-ALIVE')
+                    return;
+                else if(e.data == 'DONE-STREAM')
+                    source.close();
+                else{
+                    const sah = JSON.parse(e.data);
+                    updateChart(sah);
+                }
+                
+                // if(sah.status === "1") document.getElementById('status').innerHTML += sah.time + ' : Buy<br>';
+                // else if(sah.status === "2") document.getElementById('status').innerHTML += sah.time + ' : Sell<br>';
+            };
+            // const i = 0;
+            // const dLen = 1000;
+            const updateChart = function (sah) {
+                // if(sah == 'KEEP')
+                function formatNumber(num) {
+                    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+                }
+                const status = ['N', 'S', 'B'];
+                const color = ['text-primary text-center', 'text-danger text-center','text-success text-center'];
+                $("#price").html('Rp ' + formatNumber(sah.open));
+
+                $("#ema5").html('Rp ' + formatNumber(sah.ema[0].toFixed(2)) + '<strong class="' + color[sah.ema_stat[0]] + '"> (' + status[sah.ema_stat[0]] + ')</strong>');
+                $("#ema10").html('Rp ' + formatNumber(sah.ema[1].toFixed(2)) + '<strong  class="' + color[sah.ema_stat[1]] + '"> (' + status[sah.ema_stat[1]] + ')</strong>');
+                $("#ema20").html('Rp ' + formatNumber(sah.ema[2].toFixed(2)) + '<strong  class="' + color[sah.ema_stat[2]] + '"> (' + status[sah.ema_stat[2]] + ')</strong>');
+                $("#ema50").html('Rp ' + formatNumber(sah.ema[3].toFixed(2)) + '<strong  class="' + color[sah.ema_stat[3]] + '"> (' + status[sah.ema_stat[3]] + ')</strong>');
+                $("#ema100").html('Rp ' + formatNumber(sah.ema[4].toFixed(2)) + '<strong  class="' + color[sah.ema_stat[4]] + '"> (' + status[sah.ema_stat[4]] + ')</strong>');
+
+
+                $("#sma5").html('Rp ' + formatNumber(sah.sma[0].toFixed(2)) + '<strong  class="' + color[sah.sma_stat[0]] + '"> (' + status[sah.sma_stat[0]] + ')</strong>');
+                $("#sma10").html('Rp ' + formatNumber(sah.sma[1].toFixed(2)) + '<strong  class="' + color[sah.sma_stat[1]] + '"> (' + status[sah.sma_stat[1]] + ')</strong>');
+                $("#sma20").html('Rp ' + formatNumber(sah.sma[2].toFixed(2)) + '<strong  class="' + color[sah.sma_stat[2]] + '"> (' + status[sah.sma_stat[2]] + ')</strong>');
+                $("#sma50").html('Rp ' + formatNumber(sah.sma[3].toFixed(2)) + '<strong  class="' + color[sah.sma_stat[3]] + '"> (' + status[sah.sma_stat[3]] + ')</strong>');
+                $("#sma100").html('Rp ' + formatNumber(sah.sma[4].toFixed(2)) + '<strong  class="' + color[sah.sma_stat[4]] + '"> (' + status[sah.sma_stat[4]] + ')</strong>');
+
+
+                let st = 0,
+                    st_string = '',
+                    perc = 0,
+                    ico = '',
+                    stt = 0;
+
+                st = sah.open - op;
+                perc = (st / sah.open) * 100
+
+                const icoa = ['<i class="fa fa-caret-down">', '<i class="fa fa-caret-up">',
+                    '<i class="fa fa-circle">'
+                ]
+                const csta = ['-danger', '-success', '-secondary']
+                const sta = ['', '+', '+']
+                if (st < 0) stt = 0
+                else if (st > 0) stt = 1
+                else stt = 2
+                st_string = sta[stt] + st.toString() + ' (' + sta[stt] + formatNumber(perc.toFixed(2)) + '%) ' +
+                    icoa[stt];
+                // console.log(st_string); text-uppercase text-success font-weight-bold text-xs mb-1
+                $("#st").html(st_string).removeClass().addClass('text' + csta[stt]);
+                $("#t_st").removeClass().addClass("text-uppercase font-weight-bold text-xs mb-1 text" + csta[
+                    stt]);
+                $("#card_st").removeClass().addClass("card shadow border-left" + csta[stt] + " py-2")
+
+
+                $("#sto").html('%D ' + formatNumber(sah.smooth.toFixed(2)) + ', %K ' + sah.fast.toFixed(2));
+                $("#bol").html('Rp ' + formatNumber(sah.bol_lo.toFixed(2)) + ', Rp ' + sah.bol_hi.toFixed(2));
+                $("#ses").html('Rp ' + formatNumber(sah.ses.toFixed(2)));
+                $("#bol_sta").html('<strong> (' + status[sah.bol_stat] + ')</strong>').removeClass().addClass(
+                    color[sah.bol_stat]);
+                $("#ses_sta").html('<strong> (' + status[sah.ses_stat] + ')</strong>').removeClass().addClass(
+                    color[sah.ses_stat]);
+                $("#sto_sta").html('<strong> (' + status[sah.sto_stat] + ')</strong>').removeClass().addClass(
+                    color[sah.sto_stat]);
+
+                let buy_ma = 0,
+                    sell_ma = 0,
+                    net_ma = 0;
+
+                for (var i = 0; i < 5; i++) {
+                    em = sah.ema_stat[i];
+                    es = sah.sma_stat[i];
+
+                    if (em === 1) sell_ma++;
+                    else buy_ma++;
+
+                    if (es === 1) sell_ma++;
+                    else buy_ma++;
+                }
+
+                let buy_ta = 0,
+                    sell_ta = 0,
+                    net_ta = 0;
+
+                if (sah.bol_stat === 1) sell_ta++;
+                else if (sah.bol_stat === 2) buy_ta++;
+                else net_ta++;
+                if (sah.ses_stat === 1) sell_ta++;
+                else if (sah.ses_stat === 2) buy_ta++;
+                else net_ta++;
+                if (sah.sto_stat === 1) sell_ta++;
+                else if (sah.sto_stat === 2) buy_ta++;
+                else net_ta++;
+
+                let buy_stat = 0,
+                    sell_stat = 0;
+                buy_stat = buy_ma + buy_ta;
+                sell_stat = sell_ma + sell_ta;
+
+                // console.log(buy_ta, sell_ta, net_ta);
+                $(".buy_ma").html(buy_ma);
+                $(".sell_ma").html(sell_ma);
+
+                $(".buy_ta").html(buy_ta);
+                $(".sell_ta").html(sell_ta);
+                $(".net_ta").html(net_ta);
+
+                let decide_ma = "",
+                    class_d_ma = "";
+                let decide_ta = "",
+                    class_d_ta = "";
+                let decide_stat = "",
+                    class_d_stat = "";
+                class_card_stat = "";
+
+                if (buy_ma > sell_ma && buy_ma > net_ma) {
+                    decide_ma = "BUY";
+                    class_d_ma = "text-success";
+                } 
+                else if (sell_ma > buy_ma && sell_ma > net_ma) {
+                    decide_ma = "SELL";
+                    class_d_ma = "text-danger";
+                } 
+                else {
+                    decide_ma = "NEUTRAL";
+                    class_d_ma = "text-primary";
+                }
+
+                if (buy_ta > sell_ta && buy_ta > net_ta) {
+                    decide_ta = "BUY";
+                    class_d_ta = "text-success";
+                } 
+                else if (sell_ta > buy_ta && sell_ta > net_ta) {
+                    decide_ta = "SELL";
+                    class_d_ta = "text-danger";
+                } 
+                else {
+                    decide_ta = "NEUTRAL";
+                    class_d_ta = "text-primary";
+                }
+
+                if (buy_stat > sell_stat) {
+                    decide_stat = "BUY";
+                    class_d_stat = "text-success";
+                    class_card_stat = "card shadow border-left-success py-2";
+                } 
+                else {
+                    decide_stat = "SELL";
+                    class_d_stat = "text-danger";
+                    class_card_stat = "card shadow border-left-danger py-2";
+                }
+
+                if (buy_ma >= 9 || sell_ma >= 9) decide_ma = "STRONG " + decide_ma;
+                if (buy_ta >= 9 || sell_ta >= 9) decide_ta = "STRONG " + decide_ta;
+                if (buy_stat >= 11 || sell_stat >= 11) decide_stat = "STRONG " + decide_stat;
+
+                class_d_ma += " decide_ma";
+                class_d_ta += " decide_ta";
+                // class_d_stat += " decide_stat";
+
+                $(".decide_ma").html(decide_ma).removeClass().addClass(class_d_ma);
+                $(".decide_ta").html(decide_ta).removeClass().addClass(class_d_ta);
+                $("#status").html(decide_stat).removeClass().addClass(class_d_stat);
+                $("#t_status").removeClass().addClass("text-uppercase font-weight-bold text-xs mb-1 " + class_d_stat);
+                $("#card_stat").removeClass().addClass(class_card_stat);
+
+                const date_val = new Date(sah.time),
+                    s_smooth = parseFloat(sah.smooth),
+                    s_fast = parseFloat(sah.fast),
+                    open = parseFloat(sah.open),
+                    close = parseFloat(sah.close),
+                    high = parseFloat(sah.high),
+                    low = parseFloat(sah.low),
+                    avg = parseFloat(sah.avg),
+                    vol = parseInt(sah.vol),
+                    ema = parseFloat(sah.ema[2]),
+                    sma = parseFloat(sah.sma[2]),
+                    ses = parseFloat(sah.ses),
+                    bollinger_hi = parseFloat(sah.bol_hi),
+                    bollinger_low = parseFloat(sah.bol_lo);
+
+                dp_price.push({
+                    x: date_val,
+                    y: [open, high, low, close]
+                });
+                dp_volume.push({
+                    x: date_val,
+                    y: vol
+                });
+                dp_average.push({
+                    x: date_val,
+                    y: avg
+                });
+                dp_ema.push({
+                    x: date_val,
+                    y: ema
+                });
+                dp_ses.push({
+                    x: date_val,
+                    y: ses
+                });
+                dp_sma.push({
+                    x: date_val,
+                    y: sma
+                });
+                dp_bollinger.push({
+                    x: date_val,
+                    y: [bollinger_hi, bollinger_low]
+                });
+                dp_ssmooth.push({
+                    x: date_val,
+                    y: s_smooth
+                });
+                dp_sfast.push({
+                    x: date_val,
+                    y: s_fast
+                });
+                chart1.render();
+                chart2.render();
+                chart3.render();
+            };
+
+            const charts = [chart1, chart2, chart3]; // add all charts (with axes) to be synced
+            function syncHandler(e) {
+
+                for (var i = 0; i < charts.length; i++) {
+                    var chart = charts[i];
+
+                    if (!chart.options.axisX)
+                        chart.options.axisX = {};
+
+                    if (!chart.options.axisY)
+                        chart.options.axisY = {};
+
+                    if (e.trigger === "reset") {
+
+                        chart.options.axisX.viewportMinimum = chart.options.axisX.viewportMaximum = null;
+                        chart.options.axisY.viewportMinimum = chart.options.axisY.viewportMaximum = null;
+
+                        chart.render();
+
+                    } else if (chart !== e.chart) {
+
+                        chart.options.axisX.viewportMinimum = e.axisX[0].viewportMinimum;
+                        chart.options.axisX.viewportMaximum = e.axisX[0].viewportMaximum;
+
+                        chart.options.axisY.viewportMinimum = e.axisY[0].viewportMinimum;
+                        chart.options.axisY.viewportMaximum = e.axisY[0].viewportMaximum;
+
+                        chart.render();
+
+                    }
+                }
+            }
+            var heightRatio = (chart1.plotArea.y2 - chart1.plotArea.y1) / (chart2.plotArea.y2 - chart2.plotArea
+                .y1) + 10;
+
+            var $chart1 = $("#chartContainer1"),
+                $chart2 = $("#chartContainer2"),
+                $chart3 = $("#chartContainer3");
+            var otherChartCanvas = $chart1.find(".canvasjs-chart-canvas").get(1);
+            var otherChartCanvas1 = $chart2.find(".canvasjs-chart-canvas").get(1);
+            var otherChartCanvas2 = $chart3.find(".canvasjs-chart-canvas").get(1);
+
+            $chart1.on("mousemove mouseup mousedown mouseout", function (e) {
+                var parentOffset = $chart1.offset();
+                otherChartCanvas1.dispatchEvent(createEvent(
+                    e.type, e.screenX, e.screenY + chart1.get("height"), chart2.axisX[0]
+                    .convertValueToPixel(chart1.axisX[0].convertPixelToValue(e.clientX)),
+                    ((e.clientY - ((e.pageY - e.clientY) <= chart1.plotArea.y1 ? chart1.plotArea
+                        .y1 : 0)) / heightRatio) + $chart2.offset().top + chart2.plotArea.y1 - (e
+                        .pageY - e.clientY)
+                ));
+                otherChartCanvas2.dispatchEvent(createEvent(
+                    e.type, e.screenX, e.screenY + chart1.get("height"), chart3.axisX[0]
+                    .convertValueToPixel(chart1.axisX[0].convertPixelToValue(e.clientX)),
+                    ((e.clientY - ((e.pageY - e.clientY) <= chart1.plotArea.y1 ? chart1.plotArea
+                        .y1 : 0)) / heightRatio) + $chart3.offset().top + chart3.plotArea.y1 - (e
+                        .pageY - e.clientY)
+                ));
+            });
+
+            $chart2.on("mousemove mouseup mousedown mouseout", function (e) {
+                otherChartCanvas.dispatchEvent(createEvent(
+                    e.type, e.screenX, e.screenY - chart2.get("height"),
+                    chart1.axisX[0].convertValueToPixel(chart2.axisX[0].convertPixelToValue(e
+                        .clientX)),
+                    e.clientY - chart2.get("height")
+                ));
+                otherChartCanvas2.dispatchEvent(createEvent(
+                    e.type, e.screenX, e.screenY + chart1.get("height"), chart3.axisX[0]
+                    .convertValueToPixel(chart1.axisX[0].convertPixelToValue(e.clientX)),
+                    ((e.clientY - ((e.pageY - e.clientY) <= chart1.plotArea.y1 ? chart1.plotArea
+                        .y1 : 0)) / heightRatio) + $chart3.offset().top + chart3.plotArea.y1 - (e
+                        .pageY - e.clientY)
+                ));
+            });
+
+            $chart3.on("mousemove mouseup mousedown mouseout", function (e) {
+                otherChartCanvas.dispatchEvent(createEvent(
+                    e.type, e.screenX, e.screenY - chart3.get("height") - chart2.get("height"),
+                    chart1.axisX[0].convertValueToPixel(chart3.axisX[0].convertPixelToValue(e
+                        .clientX)),
+                    e.clientY - chart3.get("height") - chart2.get("height")
+                ));
+                otherChartCanvas1.dispatchEvent(createEvent(
+                    e.type, e.screenX, e.screenY - chart3.get("height") - 10,
+                    chart2.axisX[0].convertValueToPixel(chart3.axisX[0].convertPixelToValue(e
+                        .clientX)),
+                    e.clientY - chart3.get("height") - 10
+                ));
+            });
+
+            function createEvent(type, screenX, screenY, clientX, clientY) {
+                return new MouseEvent(type, {
+                    view: window,
+                    bubbles: false,
+                    cancelable: true,
+                    screenX: screenX,
+                    screenY: screenY,
+                    clientX: clientX,
+                    clientY: clientY
+                });
+            }
+            // sse();
+        }
+    </script>
+</body>
+
+</html>
